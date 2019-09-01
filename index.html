@@ -164,6 +164,126 @@
           <div id="js-content" class="content-ll">
             
   
+    <article id="post-go-modules" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2019/09/01/go-modules/">go-modules</a>
+    </h1>
+  
+
+        
+        <a href="/2019/09/01/go-modules/" class="archive-article-date">
+  	<time datetime="2019-09-01T12:58:28.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>Sep 1 2019</time>
+</a>
+        
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h1 id="Go-Modules"><a href="#Go-Modules" class="headerlink" title="Go Modules"></a>Go Modules</h1><blockquote>
+<p>A <em>module</em> is a collection of related Go packages that are versioned together as a single unit.</p>
+<p>Modules record precise dependency requirements and create reproducible builds.</p>
+</blockquote>
+<p>  Go从1.11开始引入了原生的包管理器Go Modules， 他的前身是<a href="https://research.swtch.com/vgo" target="_blank" rel="noopener">vgo</a>。</p>
+<h2 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">go mod init github.com/my/repo</span><br><span class="line">go: creating new go.mod: module github.com/my/repo</span><br><span class="line"><span class="meta">$</span> cat go.mod</span><br><span class="line"></span><br><span class="line">module github.com/my/repo</span><br><span class="line"></span><br><span class="line">require rsc.io/quote v1.5.2</span><br></pre></td></tr></table></figure>
+<h3 id="go-mod"><a href="#go-mod" class="headerlink" title="go.mod"></a>go.mod</h3><p>go.mod类似于node里的package.json， 里面记录了当前module所需要的直接依赖以及间接依赖。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">module github.com/pingcap/tidb # 模块的名字</span><br><span class="line"></span><br><span class="line">require (</span><br><span class="line">	github.com/BurntSushi/toml v0.3.1</span><br><span class="line">	github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f // indirect</span><br><span class="line">	github.com/blacktear23/go-proxyprotocol v0.0.0-20180807104634-af7a81e8dd0d</span><br><span class="line">	github.com/codahale/hdrhistogram v0.0.0-20161010025455-3a0bb77429bd // indirect</span><br><span class="line">	github.com/coreos/bbolt v1.3.3 // indirect</span><br><span class="line">	github.com/coreos/etcd v3.3.13+incompatible</span><br><span class="line">	github.com/coreos/go-systemd v0.0.0-20181031085051-9002847aa142 // indirect</span><br><span class="line">	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect</span><br><span class="line">	github.com/cznic/mathutil v0.0.0-20181122101859-297441e03548</span><br><span class="line">	github.com/cznic/sortutil v0.0.0-20150617083342-4c7342852e65</span><br><span class="line">	github.com/dgryski/go-farm v0.0.0-20190104051053-3adb47b1fb0f</span><br><span class="line">	github.com/dustin/go-humanize v1.0.0 // indirect</span><br><span class="line">	github.com/go-ole/go-ole v1.2.1 // indirect</span><br><span class="line">	github.com/go-sql-driver/mysql v0.0.0-20170715192408-3955978caca4</span><br><span class="line">	github.com/gogo/protobuf v1.2.0</span><br><span class="line">	github.com/golang/protobuf v1.2.0</span><br><span class="line">	github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c</span><br><span class="line">	github.com/google/uuid v1.1.1</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>除了require， go.mod还支持一些其他的指令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">replace example.com/some/dependency =&gt; example.com/some/dependency-fork v1.2.3 # 使用某个依赖的fork来替换这个依赖</span><br><span class="line">replace example.com/original/import/path =&gt; /your/forked/import/path # 替换的路径可以是绝对路径</span><br></pre></td></tr></table></figure>
+<h4 id="版本选择"><a href="#版本选择" class="headerlink" title="版本选择"></a>版本选择</h4><p>所有的原生命令都会(go get go build)都会自动更新go.mod文件(注意在$GOPATH下需要设置GO111MODULE为on)， 默认会添加依赖的最新版本到go.mod。</p>
+<p>依赖使用Pseudo-versions</p>
+<p>​                                                              commit time         commit hash</p>
+<p>​    github.com/google/btree v0.0.0-20180813153112-4030bb1f1f0c</p>
+<p>​                                                  tag-version</p>
+<h3 id="go-sum"><a href="#go-sum" class="headerlink" title="go.sum"></a>go.sum</h3><p>go.sum中记录了构件项目时所用的各个依赖的哈希值，用来对module进行验证</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMTw=</span><br></pre></td></tr></table></figure>
+<p>执行go mod verify可以检查你下载的依赖是否与go.sum记录的相匹配从而提高了安全性，go module下载的module可以在$GOPATH/pkg/mod里查看。</p>
+<h2 id="常用命令"><a href="#常用命令" class="headerlink" title="常用命令"></a>常用命令</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">Go &#123;get，build，test&#125;</span><br><span class="line"></span><br><span class="line">Go mod provides access to operations on modules.</span><br><span class="line"></span><br><span class="line">Note that support for modules is built into all the go commands，</span><br><span class="line">not just &apos;go mod&apos;. For example， day-to-day adding， removing， upgrading，</span><br><span class="line">and downgrading of dependencies should be done using &apos;go get&apos;.</span><br><span class="line">See &apos;go help modules&apos; for an overview of module functionality.</span><br><span class="line"></span><br><span class="line">Usage:</span><br><span class="line"></span><br><span class="line">	go mod &lt;command&gt; [arguments]</span><br><span class="line"></span><br><span class="line">The commands are:</span><br><span class="line"></span><br><span class="line">	download    download modules to local cache</span><br><span class="line">	edit        edit go.mod from tools or scripts</span><br><span class="line">	graph       print module requirement graph</span><br><span class="line">	init        initialize new module in current directory</span><br><span class="line">	tidy        add missing and remove unused modules</span><br><span class="line">	vendor      make vendored copy of dependencies</span><br><span class="line">	verify      verify dependencies have expected content</span><br><span class="line">	why         explain why packages or modules are needed</span><br><span class="line"></span><br><span class="line">Use &quot;go help mod &lt;command&gt;&quot; for more information about a command.</span><br></pre></td></tr></table></figure>
+<h2 id="Migrate-from-govendor-to-go-modules"><a href="#Migrate-from-govendor-to-go-modules" class="headerlink" title="Migrate from govendor to go modules"></a>Migrate from govendor to go modules</h2><ol>
+<li><code>go mod init</code>会自动从vendor/vendor.json中拷贝依赖， 也会自动生成一个包名，你也可以自己取一个名字，这将作为pkg的引用名字。</li>
+<li>build your project<ol>
+<li>成功 done</li>
+<li>失败<ol>
+<li>对于major version&gt;=2的modules 需要手动在import path里加上major version如<code>quoteV3 &quot;rsc.io/quote/v3&quot;</code>， 但是使用起来包名还是一样的。</li>
+<li>错误信息是:”unknown revision”， 这个错误的意思是远程分支没有这个commit，这时候需要确认自己需要的依赖的正确版本， 用<code>go get</code>更新对应的依赖， 然后回到步骤2。</li>
+</ol>
+</li>
+</ol>
+</li>
+<li><code>go mod tidy</code>， 这个命令会整理去掉不需要的依赖。</li>
+<li>(optional) 如果因为某些原因还是需要vendor目录，可以执行<code>go mod vendor</code> 会生成vendor目录(虽然官方不推荐)， 目录底下有一个modules.txt文件记录了vendor的内容，编译时要使用vendor还需要加上编译参数<code>-mod=vendor</code>。</li>
+</ol>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意"></a>注意</h2><ol>
+<li>go modules在$GOPATH下不是默认启用的(是的，在非$GOPATH下是默认启用的，go project可以放在任意的目录下了，看起来官方准备摒弃$GOPATH)，要在$GOPATH下启用需要<code>export GO111MODULE=&quot;on&quot;</code>。</li>
+<li>vendor模式下vendor目录当前不会拷贝非go语言的依赖 <a href="https://github.com/golang/go/issues/26366。" target="_blank" rel="noopener">https://github.com/golang/go/issues/26366。</a></li>
+</ol>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考:"></a>参考:</h2><ol>
+<li><a href="https://github.com/golang/go/wiki/Modules" target="_blank" rel="noopener">https://github.com/golang/go/wiki/Modules</a></li>
+<li><a href="https://tip.golang.org/cmd/go/#hdr-Module_downloading_and_verification" target="_blank" rel="noopener">https://tip.golang.org/cmd/go/#hdr-Module_downloading_and_verification</a></li>
+<li><a href="https://blog.golang.org/modules2019" target="_blank" rel="noopener">https://blog.golang.org/modules2019</a></li>
+<li><a href="https://research.swtch.com/vgo" target="_blank" rel="noopener">https://research.swtch.com/vgo</a></li>
+</ol>
+
+      
+
+      
+    </div>
+    <div class="article-info article-info-index">
+      
+      
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">code</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">go</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+      
+
+      
+        <p class="article-more-link">
+          <a class="article-more-a" href="/2019/09/01/go-modules/">展开全文 >></a>
+        </p>
+      
+
+      
+      <div class="clearfix"></div>
+    </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Believe-in-Future" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -698,7 +818,15 @@ return o(i(t),arguments.length<2?void 0:u(arguments[1]))}})},function(t,n,r){var
               </li>
              
               <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">go，code</a>
+              </li>
+             
+              <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color5">life</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color3">go</a>
               </li>
             
             <div class="clearfix"></div>
